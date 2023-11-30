@@ -4,14 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SURI</title>
-  <script src="create_DID.js"></script>
 </head>
 <body>
-    <button id="did_btn">Create DID</button>
-
-    <script>
-        const element = document.getElementById("did_btn");
-        element.addEventListener("click", createDID());
-    </script>
+  <script src="./app.js"></script>
+  <button id="did_btn" onclick="createDid('https://example.com')">Create DID</button>
 </body>
 </html>

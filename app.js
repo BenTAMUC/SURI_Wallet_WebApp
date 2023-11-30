@@ -1,5 +1,8 @@
 import * as ed from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
+import Gun from 'gun';
+
+var gun = Gun();
 
 function createDID(url) {
     // Generate sha 512 sync
@@ -42,4 +45,3 @@ function createDID(url) {
   
     return didDoc;
 }
-createDID("https://example.com");
