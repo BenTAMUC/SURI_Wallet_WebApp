@@ -9,7 +9,7 @@ James Presentation:
     After doing the command on step 2, you 
     can either push f12 or right click and select 
     the 'inspect' option to view the in browser dev
-    screen.
+    screen. (this was using google chrome)
     Click on the 'console' tab to view output
     Click the 'Create DID' button
     You should see in the consol output, in this order:
