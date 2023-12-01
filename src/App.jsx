@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import * as ed from '@noble/ed25519';
 import { sha512 } from '@noble/hashes/sha512';
+import Gun from 'gun';
 import './App.css'
 
 function App() {
@@ -20,13 +21,12 @@ function App() {
       </div>
       <h1>SURI DID Generator</h1>
       <div className="card">
-        <button onClick={() => createDID('https:example.com')}>
-          count is {count}
-        </button>
+        <button onClick={() => createDID('https:example.com')}>Create DID</button>
       </div>
     </>
   )
 }
+
 
 function createDID(url) {
   // Generate sha 512 sync
@@ -67,7 +67,25 @@ function createDID(url) {
   }
   console.log(JSON.stringify(didDoc, null, 2));
 
+  const gun = Gun().get('did');
+  gun.put(array2object(didDoc));
+
+  console.log(gun.get('did'));
+
+
   return didDoc;
+}
+
+function array2object(arr){
+  var obj = {};
+  Gun.list.map(arr, function(v,f,t){
+    if(Gun.list.is(v) || Gun.obj.is(v)){
+      obj[f] = array2object(v);
+      return;
+    }
+    obj[f] = v;
+  });
+  return obj;
 }
 
 export default App
