@@ -67,10 +67,11 @@ function createDID(url) {
   }
   console.log(JSON.stringify(didDoc, null, 2));
 
-  const gun = Gun().get('did');
-  gun.put(array2object(didDoc));
+  const gun = Gun();
+  const did = gun.get('did').put({ name: 'didDoc'});
+  did.get('didDoc').set(didDoc);
 
-  console.log(gun.get('did'));
+  console.log(gun.get('didDoc'));
 
 
   return didDoc;

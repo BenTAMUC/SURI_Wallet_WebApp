@@ -22,3 +22,16 @@ James Presentation:
 
 I had to use a function that seperated the array elements in the DID doc into seperate objects
 GUN DB doesnt like storing an array of objects, this was mainly a test on if i could get a DID stored in a local gun db
+
+clean up code
+add comments
+make sure dids are valid
+    quick test with jwt signing 
+    test did validity by finding tool
+database structure:
+    key db
+    did db
+        will contain profile contents
+    sigchain db
+orbitdb did support???
+    find out how orbit supports users
