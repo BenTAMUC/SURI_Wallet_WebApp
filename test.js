@@ -1,15 +1,19 @@
 import crypto from 'crypto';
 import elliptic from 'elliptic';
 import { create } from 'ipfs-core';
-import { createOrbitDB } from '@orbitdb/core';
+import { createOrbitDB, Identities, KeyStore } from '@orbitdb/core';
 import PromptSync from 'prompt-sync';
 
 // Create IPFS instance
 const ipfs = await create();
 
+const id = 'userA';
+const identities = await Identities();
+const identity = identities.createIdentity({ id });
+
 // Create OrbitDB instance
 const orbitdb = await createOrbitDB({ipfs});
-const db = await orbitdb.open('suri-db');
+const db = await orbitdb.open('suri-db', { type: 'documents' });
 console.log(db.address.toString());
 
 console.log(await db.all());
@@ -42,7 +46,7 @@ function createDID(url) {
         "https://www.w3.org/ns/did/v1",
         "https://w3id.org/security/suites/jws-2020/v1"
       ],
-      "id": id,
+      "_id": id,
       "verificationMethod": [
         {
           "id": "did:web:" + String(url) + "#owner",
@@ -66,21 +70,28 @@ function createDID(url) {
     }
     return didDoc;
   }
-  const hash1 = await db.add(createDID(URL));
+  function printAllVals(obj) {
+    for (let k in obj) {
+        if (typeof obj[k] === "object") {
+            printAllVals(obj[k])
+        } else {
+            // base case, stop recurring
+            console.log(obj[k]);
+        }
+    }
+}
+
+  const doc = await db.put(createDID(URL));
   const choice = prompt("Enter 'y' to view the DID document: ");
 
   if (choice == "y") {
     console.log("DID Document from hash1: ");
-    console.log(await db.get(hash1));
+    console.log(await db.get('did:web:www.example.com'));
     console.log("DID Document from all(): ");
     console.log(await db.all());
   }
 
-  let ddd = await db.get(hash1);
-  ddd = JSON.stringify(ddd);
-  ddd = JSON.parse(ddd);
-  console.log("DID Document saved into variable for further use: ")
-  console.log(ddd);
+  printAllVals(await db.get('did:web:www.example.com'));
 
   await db.close();
   await orbitdb.stop();

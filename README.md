@@ -35,3 +35,5 @@ database structure:
     sigchain db
 orbitdb did support???
     find out how orbit supports users
+
+Using the documents database requires there to be an "_id" object within the JSON to be accepted, will need to change did/vc/sc specs to compensate for that.
