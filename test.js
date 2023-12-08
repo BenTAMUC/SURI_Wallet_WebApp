@@ -81,6 +81,35 @@ function createDID(url) {
     }
 }
 
+function printJSON(jsonObj, indent = 0) {
+  const spaces = ' '.repeat(indent * 2);
+
+  // Check if the jsonObj is an object
+  if (typeof jsonObj === 'object' && jsonObj !== null) {
+      console.log(spaces + '{');
+
+      // Recursively print each key-value pair
+      Object.keys(jsonObj).forEach((key, index, array) => {
+          const comma = index < array.length - 1 ? ',' : '';
+
+          console.log(spaces + `  "${key}": `);
+          printJSON(jsonObj[key], indent + 1);
+          console.log(comma);
+      });
+
+      console.log(spaces + '}');
+  } else {
+      // If jsonObj is not an object, print its value
+      console.log(spaces + JSON.stringify(jsonObj));
+  }
+}
+
+function printJSONWithFormatting(jsonObj) {
+  // Use JSON.stringify with a replacer function and spaces parameter
+  const jsonString = JSON.stringify(jsonObj, null, 2);
+  console.log(jsonString);
+}
+
   const doc = await db.put(createDID(URL));
   const choice = prompt("Enter 'y' to view the DID document: ");
 
@@ -91,7 +120,7 @@ function createDID(url) {
     console.log(await db.all());
   }
 
-  printAllVals(await db.get('did:web:www.example.com'));
+  printJSONWithFormatting(await db.get('did:web:www.example.com'));
 
   await db.close();
   await orbitdb.stop();
