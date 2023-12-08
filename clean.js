@@ -134,11 +134,11 @@ console.log("");
 // These should be saved by the user for later use, as they are needed to access the databases in seperate instances
 console.log("Save these hashes for later use");
 const keyADD = keyDB.address.toString();
-console.log(keyADD);
+console.log("Key DB Address: " + keyADD);
 const didADD = didDB.address.toString();
-console.log(didADD);
+console.log("DID DB Address: " + didADD);
 const scADD = scDB.address.toString();
-console.log(scADD);
+console.log("Key DB Address: " + scADD);
 
 console.log("");
 console.log("Databases created!!!");
