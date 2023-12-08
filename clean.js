@@ -191,7 +191,25 @@ else{
 }
 
 console.log("");
+let fish = prompt("Would you like to see your documents? (y/n): ");
 
+while(fish == "y"){
+    console.log("");
+    console.log("Here is profile data from didDB: ");
+    printJSONWithFormatting(await didDB.get(id));
+
+    console.log("");
+    console.log("Here is your DID Document from didDB: ");
+    printJSONWithFormatting(await didDB.get(didDoc._id));
+
+    console.log("");
+    console.log("Here is your keys from keyDB: ");
+    printJSONWithFormatting(await keyDB.get("keys"));
+
+    console.log("");
+    fish = prompt("Would you like to see your documents again? (y/n): ");
+
+}
 
 await keyDB.close();
 await didDB.close();
