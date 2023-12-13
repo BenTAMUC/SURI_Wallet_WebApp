@@ -168,12 +168,10 @@ console.log("");
 // Saving Database hashes to variables
 // These should be saved by the user for later use, as they are needed to access the databases in seperate instances
 console.log("Save these hashes for later use");
-const keyADD = keyDB.address.toString();
-console.log("Key DB Address: " + keyADD);
-const didADD = didDB.address.toString();
-console.log("DID DB Address: " + didADD);
-const scADD = scDB.address.toString();
-console.log("Key DB Address: " + scADD);
+
+console.log("Key DB Hash: " + keyDB.address.toString());;
+console.log("DID DB Hash: " + didDB.address.toString());
+console.log("Key DB Hash: " + scDB.address.toString());
 
 console.log("");
 console.log("Databases created!!!");
