@@ -38,7 +38,7 @@ function keysJSON(x64, y64, xHex, yHex, pubK){
 }
 
 // Generates new key pair to be used for DID/DID Verification, start of SigChain
-async function generateKeys(){
+function generateKeys(){
     // Request a 32 byte key
     const size = parseInt(process.argv.slice(2)[0]) || 32;
     const randomString = crypto.randomBytes(size).toString("hex");
@@ -54,20 +54,16 @@ async function generateKeys(){
     const xHex = pub.x.toBuffer().toString('hex');
     const yHex = pub.y.toBuffer().toString('hex');
 
-    console.log(`Public (hex): ${prv.getPublic('hex')}`)
-    console.log(`x (hex): ${pub.x.toBuffer().toString('hex')}`)
-    console.log(`y (hex): ${pub.y.toBuffer().toString('hex')}`)
-    console.log(`x (base64): ${pub.x.toBuffer().toString('base64')}`)
-    console.log(`y (base64): ${pub.y.toBuffer().toString('base64')}`)
-    console.log(`-- kty: EC, crv: secp256k1`)
-
     // Private key will be displayed to user for safe keeping
     console.log('Store this Private Key in a safe place, DO NOT SHARE!!!: ' + key);
 
-    return [x64, y64, xHex, yHex, pubK];
+    // Create a digital signature
+    const signature = prv.sign(pubK).toDER('hex');
+
+    return [x64, y64, xHex, yHex, pubK, signature];
 }
 
-async function createDID(url, x64, y64) {
+function createDID(url, x64, y64) {
     let didid = "did:web:" + String(url);
     let didDoc = {
         "@context": [
@@ -96,6 +92,45 @@ async function createDID(url, x64, y64) {
         ],
     }
     return didDoc;
+}
+
+// generates a sigchain link and all its components for new key creation
+async function sigchainKeyLink(url, signature){
+    const currentDate = new Date();
+    const timestamp = currentDate.toISOString();
+    const currentTimestamp = Math.floor(new Date().getTime() / 1000);
+    let sigid = "did:web:" + String(url);
+    let link = {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://www.w3.org/2018/credentials/examples/v1"
+        ],
+        "_id": sigid,
+        "type": [
+            "VerifiableCredential",
+            "SigchainCredential"
+        ],
+        "issuer": sigid,
+        "issuanceDate": timestamp,
+        "prev": null,
+        "seqno": 0,
+        "ctime": currentTimestamp,
+        "credentialSubject": {
+            "_id": sigid,
+            "keyId": "https://example.com/user/keys/2",
+            "vmHash": "sImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19",
+            "type": "key",
+            "version": 0.1
+        },
+        "proof": {
+            "type": "EcdsaSecp256k1Signature2019",
+            "created": "2020-02-03T17:23:49Z",
+            "proofPurpose": "assertionMethod",
+            "proofValue": signature.toString('hex'),
+            "verificationMethod": "https://example.com/user/keys/1"
+        }
+    }
+    return link;
 }
 
 function printJSONWithFormatting(jsonObj) {
@@ -143,52 +178,29 @@ console.log("Key DB Address: " + scADD);
 console.log("");
 console.log("Databases created!!!");
 console.log("");
-console.log("Now we will create your first DID");
-console.log("First we need to generate your keys");
-console.log("");
 
-const keys = await generateKeys();
+const keys = generateKeys();
 
-console.log("");
-const choice = prompt("Would you like to store your public key data in the key database? (y/n): ");
+await keyDB.put(keysJSON(keys[0], keys[1], keys[2], keys[3], keys[4]));
 
-if (choice == "y"){
-    const store1 = await keyDB.put(keysJSON(keys[0], keys[1], keys[2], keys[3], keys[4]));
-    console.log("Keys stored!!!");
-}
-else{
-    console.log("Okay, we will not store your keys");
-}
-
-console.log("");
 const bio = createBio();
 
-console.log("Would you like to store your profile data in your didDB? (y/n): ");
-
-if (choice == "y"){
-    const store2 = await didDB.put(profileJSON(id, bio));
-    console.log("Profile data stored!!!");
-}
-
-console.log("");
 const url = prompt("Enter the URL of your DID: ");
 
 const didDoc = await createDID(url, keys[0], keys[1]);
 
 console.log("");
-console.log("Here is your DID Document: ");
-printJSONWithFormatting(didDoc);
+
+await didDB.put(profileJSON(id, bio));
 
 console.log("");
-const choice2 = prompt("Would you like to store your DID Document in the DID Database? (y/n): ");
+console.log("Here is your DID Document: ");
+console.log("To retrieve this DID in the future, use the _id: " + url);
+printJSONWithFormatting(didDoc);
 
-if (choice2 == "y"){
-    const store3 = await didDB.put(didDoc);
-    console.log("DID Document stored!!!");
-}
-else{
-    console.log("Okay, we will not store your DID Document");
-}
+await didDB.put(didDoc);
+const scl = await sigchainKeyLink(url, keys[5]);
+await scDB.put(scl);
 
 console.log("");
 let fish = prompt("Would you like to see your documents? (y/n): ");
@@ -205,6 +217,10 @@ while(fish == "y"){
     console.log("");
     console.log("Here is your keys from keyDB: ");
     printJSONWithFormatting(await keyDB.get("keys"));
+
+    console.log("");
+    console.log("Here is your SigChain Link from scDB: "); 
+    printJSONWithFormatting(await scDB.get(scl._id));
 
     console.log("");
     fish = prompt("Would you like to see your documents again? (y/n): ");

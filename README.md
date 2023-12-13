@@ -37,3 +37,9 @@ orbitdb did support???
     find out how orbit supports users
 
 Using the documents database requires there to be an "_id" object within the JSON to be accepted, will need to change did/vc/sc specs to compensate for that.
+
+Asks for:
+    name, url, bio
+Generates DID, making keys in the background
+Displayes the DID _id that will be used to get did from db
+Generate First Sighchain Link for new keys
